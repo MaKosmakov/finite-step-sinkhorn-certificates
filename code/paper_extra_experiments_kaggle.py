@@ -52,7 +52,9 @@ CONFIG = {
     "num_workers": 4,
     "amp": True,
     "data_parallel": False,
-    "data_root": "/kaggle/working/data",
+    # Kaggle dataset: https://www.kaggle.com/datasets/pankrzysiu/cifar10-python
+    # Torchvision expects the root that contains cifar-10-batches-py/.
+    "data_root": "/kaggle/input/cifar10-python",
     "out_dir": "/kaggle/working/paper-extra-experiments",
 
     # Debug knobs. Keep None for the real run.

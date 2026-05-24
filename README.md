@@ -74,7 +74,11 @@ python code/paper_extra_experiments_3seeds_5epochs_kaggle.py
 
 ## Data
 
-CIFAR-10 is not bundled. Use the standard CIFAR-10 Python archive or an extracted CIFAR-10 directory and pass it through `--data_root` or the corresponding notebook variable.
+CIFAR-10 is not bundled. The Kaggle runs use the dataset
+[cifar10-python](https://www.kaggle.com/datasets/pankrzysiu/cifar10-python),
+mounted at `/kaggle/input/cifar10-python`. For local runs, use the standard
+CIFAR-10 Python archive or an extracted CIFAR-10 directory and pass the root
+through `--data_root` or the corresponding notebook variable.
 
 ## Reproducibility notes
 

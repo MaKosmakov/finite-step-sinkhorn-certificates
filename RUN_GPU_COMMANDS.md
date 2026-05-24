@@ -1,6 +1,10 @@
 # Reproduction Commands
 
-These commands reproduce the main diagnostics from the paper. Paths are intentionally written as placeholders so the commands can be run on a local machine, Kaggle, or another GPU environment.
+These commands reproduce the main diagnostics from the paper. The Kaggle runs
+use the CIFAR-10 Python dataset at
+<https://www.kaggle.com/datasets/pankrzysiu/cifar10-python>, mounted as
+`/kaggle/input/cifar10-python`. For local or non-Kaggle runs, replace the
+`--data_root` value with your local CIFAR-10 root.
 
 ## CPU smoke test
 
@@ -12,7 +16,7 @@ python code/train_cifar10_mhc.py \
   --n_streams 4 --d 32 --depth 4 \
   --sinkhorn_t_max 8 --sinkhorn_eps_tol 5e-4 \
   --max_train_batches 1 --max_eval_batches 1 \
-  --data_root /path/to/cifar10 \
+  --data_root /kaggle/input/cifar10-python \
   --out_dir results-cpu-smoke
 ```
 
@@ -23,7 +27,7 @@ python code/train_cifar10_mhc.py \
   --profile stress_full \
   --epochs 5 --seeds 0 1 2 \
   --batch_size 256 --num_workers 4 \
-  --data_root /path/to/cifar10 \
+  --data_root /kaggle/input/cifar10-python \
   --out_dir results-stressed-cap80 \
   --amp
 ```
