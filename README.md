@@ -79,3 +79,7 @@ CIFAR-10 is not bundled. Use the standard CIFAR-10 Python archive or an extracte
 ## Reproducibility notes
 
 The paper tables and figures are regenerated from the checked-in CSV/JSON logs and scripts. The reported focused ablation uses seeds `0,1,2`. Larger benchmark claims are intentionally out of scope; the goal is to inspect whether the certificate quantities behave as predicted by the theory.
+
+## License
+
+This code release is distributed under the MIT License. See `LICENSE`.
