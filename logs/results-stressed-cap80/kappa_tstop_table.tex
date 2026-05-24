@@ -1,0 +1,43 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+Model & med. $\kappa_{\mathrm{obs}}$ & std & med. $\kappa_{\mathrm{obs}}^{\mathrm{fix}}$ & std \\
+\midrule
+softmax & 8556629.04 & 840682.39 & --- & --- \\
+sinkhorn (early) & 14489.91 & 1315.73 & 14487.00 & 1324.17 \\
+\bottomrule
+\end{tabular}
+\caption{Final-epoch dynamic-range diagnostics (profile: \texttt{stress\_full}). $A^{\mathrm{fix}}$ denotes the oracle evaluation with fixed $t=t_{\max}$ using the same trained weights. For the row-softmax baseline, $\kappa_{\mathrm{obs}}$ is a native pre-softmax dynamic-range diagnostic, not the clipped positive-matrix dynamic range used in the Sinkhorn certificate.}
+\label{tab:final_epoch_dynamic_range_diag}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+Model & med. $t_{\mathrm{stop}}$ & hit & $\|c(A)-\mathbf{1}\|_{\infty}$ & $\|c(A^{\mathrm{fix}})-\mathbf{1}\|_{\infty}$ \\
+\midrule
+sinkhorn (early) & 14.00 & 1.00 & 0.000499$\pm$1e-06 & 0.000187$\pm$0.0001 \\
+\bottomrule
+\end{tabular}
+\caption{Final-epoch finite-step Sinkhorn controller diagnostics. The early-stop tolerance is $\varepsilon=0.0005$ and the cap is $t_{\max}=80$. The fixed column defect is measured after spending the full cap using the same trained weights.}
+\label{tab:final_epoch_sinkhorn_controller_diag}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lccc}
+\toprule
+Model & cert. & exact $\|T_L\|_1$ & exact/cert. \\
+\midrule
+softmax & 3.61e+47$\pm$5e+47 & 5.72$\pm$2 & --- \\
+sinkhorn (early) & 1.05$\pm$0.0009 & 1$\pm$8e-05 & 0.951 \\
+\bottomrule
+\end{tabular}
+\caption{Final-epoch stack certificate diagnostics. The exact backward gain is computed by vector propagation, while the certificate is $\prod_\ell(1+\varepsilon_c^{(\ell)})$. For Sinkhorn, the local diagnostic is $\rho_*=0.631\pm0.01$, the final usable ratio is 1$\pm$0, and the cap-failure rate is 0. The final usable ratio is a finite-run diagnostic, not an asymptotic local-rate estimate near tolerance or the numerical floor.}
+\label{tab:stack_certificate_diag}
+\end{table}

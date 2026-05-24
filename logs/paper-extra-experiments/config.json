@@ -1,0 +1,32 @@
+{
+  "artifact": "paper-extra-experiments",
+  "cifar_stress_setting": {
+    "depth": 128,
+    "n_streams": 8,
+    "d": 128,
+    "sinkhorn_t_max": 80,
+    "sinkhorn_eps_tol": 0.0005,
+    "sinkhorn_clip_logits": 10.0,
+    "beta_sinkhorn": 3.0
+  },
+  "focused_controller_ablation": {
+    "source_script": "paper_extra_experiments_3seeds_5epochs_kaggle.py",
+    "reported_seeds": [0, 1, 2],
+    "reported_epoch_count": 5,
+    "filter_script": "paper-extra-experiments/regenerate_focused_ablation_3seed.py"
+  },
+  "temperature_and_local_predictor_diagnostics": {
+    "source_script": "paper_extra_experiments_kaggle.py",
+    "temperature_grid": {
+      "beta_R_values": [0.5, 1.0, 2.0, 4.0],
+      "t_values": [5, 10, 20, 40, 80],
+      "trials": 64,
+      "matrix_n": 8
+    },
+    "local_predictor": {
+      "seeds": [0, 1],
+      "layers": [0, 64, 127],
+      "t_max": 80
+    }
+  }
+}

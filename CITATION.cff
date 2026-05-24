@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+title: Finite-Step Sinkhorn Certificates for Nonnegative Stream-Mixing Products
+message: If you use this code, please cite the accompanying paper.
+type: software
+authors:
+  - family-names: Kosmakov
+    given-names: Maksim
+url: https://github.com/MaKosmakov/finite-step-sinkhorn-certificates

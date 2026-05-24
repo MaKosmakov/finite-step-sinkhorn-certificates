@@ -1,0 +1,10 @@
+{
+  "source_csv": "paper-extra-experiments/logs/focused_ablation_epoch_logs.csv",
+  "used_seeds": [
+    0,
+    1,
+    2
+  ],
+  "used_epoch_count": 5,
+  "note": "Paper-facing focused-ablation table and plots are filtered to seeds 0,1,2."
+}
