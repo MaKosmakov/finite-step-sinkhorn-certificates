@@ -222,7 +222,7 @@ for the certificate mechanism rather than as a broad benchmark study.
 \item \textbf{Mixer-product \Amax certificates from marginal errors.}
 For entrywise nonnegative mixers, row and column marginal errors directly
 control \(\|H\|_\infty\) and \(\|H\|_1\), giving depth-wise forward and
-backward \Amax budgets for \(T_L\) (Proposition~\ref{prop:product}).  We also
+backward \Amax budgets for \(T_L\) (Theorem~\ref{prop:product}).  We also
 record the exact realized backward-gain diagnostic by vector propagation
 (Remark~\ref{rem:exact-backward-gain}).
 
@@ -238,7 +238,7 @@ For a fixed positive matrix, the local full-step Sinkhorn rate is
 \(\sigma_2(P)^2\), where \(P\) is the limiting doubly stochastic scaling.  We
 also distinguish rigorously certified local derivative-envelope bounds from
 non-certified first- and second-order predictors used to interpret numerical
-decay curves (Theorems~\ref{thm:local-spectral-sinkhorn}
+decay curves (Propositions~\ref{thm:local-spectral-sinkhorn}
 and~\ref{thm:local-envelope}).
 
 \item \textbf{Diagnostic implementation.}
@@ -257,7 +257,7 @@ independent nonlinear-branch Jacobian bounds.
 Claim & Supporting result \\
 \midrule
 Nonnegative marginal errors control forward and backward mixer gains
-& Proposition~\ref{prop:product} \\
+& Theorem~\ref{prop:product} \\
 Finite column-then-row Sinkhorn steps certify output column tolerance
 & Theorem~\ref{thm:sinkhorn} \\
 Layerwise column tolerances give a depth-wise backward budget
@@ -265,7 +265,7 @@ Layerwise column tolerances give a depth-wise backward budget
 Adaptive stopping preserves a global log-budget when no layer hits the cap
 & Lemma~\ref{lem:adaptive-budget} \\
 The sharp local full-step rate near the Sinkhorn limit is \(\sigma_2(P)^2\)
-& Theorem~\ref{thm:local-spectral-sinkhorn} \\
+& Proposition~\ref{thm:local-spectral-sinkhorn} \\
 Experiments illustrate conservatism and realized gains
 & Section~\ref{sec:experiments} \\
 \bottomrule
@@ -422,7 +422,7 @@ If $H\ge 0$ is $(\varepsilon_r,\varepsilon_c)$-doubly stochastic in the sense of
 \end{equation}
 since for nonnegative $H$ the norms reduce to maximum row sum and maximum column sum.
 
-\begin{proposition}[Depth-wise mixer certificate]\label{prop:product}
+\begin{theorem}[Marginal-error certificate for depth-wise nonnegative mixer products]\label{prop:product}
 Let $\Hres^{(1)},\dots,\Hres^{(L)}\in\R^{n\times n}$ be entrywise nonnegative and define
 $T_L$ as in Equation~\eqref{eq:TLdef}. Assume each $\Hres^{(\ell)}$ is
 $(\varepsilon_r^{(\ell)},\varepsilon_c^{(\ell)})$-doubly stochastic. Then
@@ -433,7 +433,7 @@ $(\varepsilon_r^{(\ell)},\varepsilon_c^{(\ell)})$-doubly stochastic. Then
 \end{equation}
 In particular, marginal error certificates propagate multiplicatively across
 depth into a depth-wise \Amax budget for the mixer pathway.
-\end{proposition}
+\end{theorem}
 
 \begin{proof}
 By submultiplicativity of induced norms and \eqref{eq:amax_fact_inline},
@@ -545,12 +545,12 @@ $\sum_{\ell=1}^L \varepsilon_r^{(\ell)}\lesssim \log B_\infty$ (and analogously 
 Subsection~\ref{subsec:scheme} summarizes a practical allocation rule and its translation into a finite Sinkhorn iteration budget.
 \end{remark}
 
-The bounds in Proposition~\ref{prop:product} apply once the marginal errors
+The bounds in Theorem~\ref{prop:product} apply once the marginal errors
 $\varepsilon_r^{(\ell)},\varepsilon_c^{(\ell)}$ are controlled by the mechanism generating $\Hres^{(\ell)}$.
 Section~\ref{sec:sinkhorn} gives explicit finite-step Sinkhorn bounds that map the logit dynamic range and the
 iteration count $t_{\max}$ to certified marginal tolerances, turning \eqref{eq:product} into a design-time rule.
 
-\paragraph{Necessity of nonnegativity} \label{par:necessity} Proposition~\ref{prop:product} uses entrywise nonnegativity only through the step \eqref{eq:amax_fact_inline}, which turns marginal constraints into induced-norm bounds. A simple example shows that this step fails completely once signs are allowed: even \emph{exact} row and column sums do not prevent arbitrarily large induced norms.
+\paragraph{Necessity of nonnegativity} \label{par:necessity} Theorem~\ref{prop:product} uses entrywise nonnegativity only through the step \eqref{eq:amax_fact_inline}, which turns marginal constraints into induced-norm bounds. A simple example shows that this step fails completely once signs are allowed: even \emph{exact} row and column sums do not prevent arbitrarily large induced norms.
 
  
 The $2\times2$ example
@@ -579,7 +579,7 @@ The mixer-path estimates are the primitive certificates. Proposition~\ref{prop:f
 
 \section{Finite-step Sinkhorn: bounds and calibration}\label{sec:sinkhorn}
 
-Proposition~\ref{prop:product} bounds the depth-wise mixer gains in terms of per-layer marginal errors. Here we relate those
+Theorem~\ref{prop:product} bounds the depth-wise mixer gains in terms of per-layer marginal errors. Here we relate those
 errors to the finite-step Sinkhorn iterations used in the mHC-motivated mixer parameterization considered here, giving a conservative rule for choosing
 $(\kappa,t_{\max})$ to meet a prescribed depth-$L$ budget.
 
@@ -660,7 +660,7 @@ If we run $t$ \emph{full} Sinkhorn steps in the \texttt{column-then-row} order, 
 We use either (i) a fixed-step choice $t=\tmax$, or (ii) an early-stopped choice $t=\tstop^{(\ell)}\le \tmax$ where $\tstop^{(\ell)}$
 is the smallest full-step count achieving the target column-marginal tolerance (Subsection~\ref{subsec:earlystop_alg}).
 
-\noindent\textbf{Layer-level errors used in Proposition~\ref{prop:product}.}
+\noindent\textbf{Layer-level errors used in Theorem~\ref{prop:product}.}
 For a layer output $\Hres^{(\ell)}=S^{(2t)}$ (with $t$ given by $t^{(\ell)}$ in \eqref{eq:H_from_steps}) define
 $\varepsilon_r^{(\ell)}:=\|\Hres^{(\ell)}\ones-\ones\|_{\infty,\mathrm{vec}}$ and
 $\varepsilon_c^{(\ell)}:=\|\ones^\top \Hres^{(\ell)}-\ones^\top\|_{\infty,\mathrm{vec}}$.
@@ -1096,7 +1096,7 @@ and the centered logarithmic output column error after $t\ge1$ full steps is
         v_t:=(\ones^\top S^{(2t)})^\top.
 \end{equation}
 
-\begin{theorem}[Sharp local spectral rate]\label{thm:local-spectral-sinkhorn}
+\begin{proposition}[Local spectral rate]\label{thm:local-spectral-sinkhorn}
 Let $A\in\R_{>0}^{n\times n}$ and let $P=\diag(r_*)A\diag(c_*)\in\cB_n$ be its Sinkhorn limit. Set
 \[
         K:=PP^\top,
@@ -1133,7 +1133,7 @@ locally. In the generic case where $x_0$ has a nonzero projection onto the leadi
         \frac{\|z_{t+1}\|}{\|z_t\|}\longrightarrow \rho_* = \sigma_2(P)^2
 \]
 up to the usual modification when the leading nontrivial eigenvalue has multiplicity.
-\end{theorem}
+\end{proposition}
 
 \begin{proof}
 The recurrence \eqref{eq:exact-log-coordinate-recursion} follows from the identities
@@ -1169,9 +1169,9 @@ On $\ones^\perp$, $K=PP^\top$ is symmetric and has operator norm $\sigma_2(P)^2$
 Since $D\mathcal L(0)=\Pi P^\top$ and $x_t=K^t x_0+O((\rho_*+\eta)^t\|x_0\|^2)$ locally, \eqref{eq:linearized-column-error-sharp} follows.
 \end{proof}
 
-The preceding theorem is asymptotic. The next result is the sharper finite-step version that should be used when one wants a certificate close to the numerical curve.
+The preceding proposition is asymptotic. The next result is the sharper finite-step version that should be used when one wants a certificate close to the numerical curve.
 
-\begin{theorem}[Non-asymptotic local spectral envelope]\label{thm:local-envelope}
+\begin{proposition}[Non-asymptotic local spectral envelope]\label{thm:local-envelope}
 For $x\in\ones^\perp$, define
 \[
         g(x):=P^\top e^x,
@@ -1217,7 +1217,7 @@ Consequently, the actual column-marginal error satisfies the following local fin
         \right),
 \end{equation}
 where $\Gamma_n$ is defined in Lemma~\ref{lem:Gamma}. The same conclusion holds with $\rho_R,\lambda_R$ replaced by any certified upper bounds $\widehat\rho_R,\widehat\lambda_R$ satisfying $\widehat\rho_R<1$.
-\end{theorem}
+\end{proposition}
 
 \begin{proof}
 The displayed formulae for $J_F$ and $J_L$ are obtained by differentiating \eqref{eq:F-L-defs}. Because $\mathcal F(0)=0$, the mean-value theorem gives, for any $x\in\ones^\perp$ with $\|x\|_2\le R$,
@@ -1380,7 +1380,7 @@ the feasible matrices concentrate near the barycenter $J=\tfrac1n\ones\ones^\top
 \end{remark}
 
 \subsection{Mixer-path calibration from \Amax budgets}\label{subsec:scheme}
-Combining the depth-wise product certificate (Proposition~\ref{prop:product}) with the finite-step Sinkhorn bound (Theorem~\ref{thm:sinkhorn}) gives a direct calibration rule from target \Amax budgets to implementable parameters (logit dynamic range and step count).
+Combining the depth-wise product certificate (Theorem~\ref{prop:product}) with the finite-step Sinkhorn bound (Theorem~\ref{thm:sinkhorn}) gives a direct calibration rule from target \Amax budgets to implementable parameters (logit dynamic range and step count).
 
 \begin{theorem}[Mixer-path calibration rule: $(\kappa,t_{\max}) \Rightarrow \|T_L\|_1$ budget]\label{thm:calibration}
 Assume each mixer $\Hres^{(\ell)}$ is entrywise nonnegative and produced by exponentiating logits with dynamic range at most $\kappa$, followed by $t_{\max}\ge1$ ideal exact full Sinkhorn steps in the \texttt{column-then-row} order. Suppose the desired per-layer column-marginal tolerance is $\varepsilon_c$. If
@@ -1415,7 +1415,7 @@ rounded up, with $t_{\max}\ge1$ unless the matrix is already normalized.
 \end{theorem}
 
 \begin{proof}
-The corrected column-marginal estimate \eqref{eq:column-certificate-kappa} gives $\varepsilon_c^{(\ell)}\le\varepsilon_c$ under \eqref{eq:tmax-scheme}. Proposition~\ref{prop:product} then gives
+The corrected column-marginal estimate \eqref{eq:column-certificate-kappa} gives $\varepsilon_c^{(\ell)}\le\varepsilon_c$ under \eqref{eq:tmax-scheme}. Theorem~\ref{prop:product} then gives
 \[
 \|T_L\|_1
 \le
@@ -1469,7 +1469,7 @@ Equivalently,
         \ge
         \frac{L-\ell}{L-\ell+1}(b_1-s_{\ell-1}).
 \]
-Induction gives $s_L\le b_1$. Proposition~\ref{prop:product} then implies $\|T_L\|_1\le\exp(s_L)\le B_1$.
+Induction gives $s_L\le b_1$. Theorem~\ref{prop:product} then implies $\|T_L\|_1\le\exp(s_L)\le B_1$.
 \end{proof}
 
 \paragraph{Certificate failure under a finite cap.}
@@ -1520,8 +1520,8 @@ Therefore the conservative finite-step rule becomes
         \Psi_n\!\left(2\beta R\,\tanh(\beta R)^{2t-1}\right).
 \end{equation}
 
-\begin{remark}[Temperature--clipping design rule]
-\label{rem:temperature-clipping}
+\begin{corollary}[Temperature--clipping calibration]
+\label{cor:temperature-clipping}
 Fix $n$, a full-step budget $t_{\max}\ge1$, and a target column tolerance $\bar\varepsilon$. If
 \begin{equation}\label{eq:temperature-clipping-condition}
         \Psi_n\!\left(2\beta R\,\tanh(\beta R)^{2t_{\max}-1}\right)
@@ -1533,7 +1533,7 @@ then every clipped logit matrix $C\in[-R,R]^{n\times n}$ produces, after $t_{\ma
         \varepsilon_c^{(2t_{\max})}\le \bar\varepsilon.
 \]
 This follows immediately from \eqref{eq:kappa-beta-R}, the monotonicity of $\Psi_n$, and Theorem~\ref{thm:sinkhorn}. A depth-$L$ backward budget $B_1$ is certified whenever $\bar\varepsilon\le B_1^{1/L}-1$.
-\end{remark}
+\end{corollary}
 
 
 \subsection{Certificate-aware training objective}\label{subsec:certificate_regularizer}
@@ -1564,7 +1564,7 @@ If $\mathcal R_{\mathrm{budget}}=0$, then
 \[
         \sum_{\ell=1}^L\log(1+\varepsilon_c^{(\ell)})\le\log B_1.
 \]
-For entrywise nonnegative mixers, Proposition~\ref{prop:product} therefore gives
+For entrywise nonnegative mixers, Theorem~\ref{prop:product} therefore gives
 \begin{equation}\label{eq:zero-cert-penalty-implication}
         \|H^{(L)}\cdots H^{(1)}\|_1\le B_1.
 \end{equation}
@@ -1715,7 +1715,7 @@ It also reports the empirical final-step ratio
 when the denominator is numerically meaningful. This final usable ratio is a diagnostic, but
 near the early-stopping tolerance or numerical floor it need not estimate the asymptotic
 local rate. A direct comparison with the local spectral predictor in
-Theorem~\ref{thm:local-spectral-sinkhorn} would require recording the pre-tolerance decay
+Proposition~\ref{thm:local-spectral-sinkhorn} would require recording the pre-tolerance decay
 curve.
 
 \paragraph{Generated tables.}
@@ -1924,7 +1924,7 @@ The $\kappa$-only bound is a worst-case certificate. When a numerical prediction
 The adaptive rule in Lemma~\ref{lem:adaptive-budget} spends the remaining log-budget across the remaining layers, and the exact vector propagation certificate in Remark~\ref{rem:exact-backward-gain} measures the realized gain.
 
 \item \textbf{For implementation, calibrate temperature and clipping jointly.}
-Remark~\ref{rem:temperature-clipping} converts $(\beta,R,t_{\max})$ directly into a conservative tolerance. Large $\beta R$ increases selectivity but slows the worst-case Sinkhorn certificate.
+Corollary~\ref{cor:temperature-clipping} converts $(\beta,R,t_{\max})$ directly into a conservative tolerance. Large $\beta R$ increases selectivity but slows the worst-case Sinkhorn certificate.
 \end{itemize}
 
 \begin{remark}[Transfer beyond mHC: attention and message passing] 
@@ -1935,7 +1935,7 @@ a product of \emph{entrywise nonnegative} approximately bistochastic mixing matr
 These guarantees assume strict positivity on the support being normalized; masked attention or sparse normalization can violate
 the standing assumptions of Section~\ref{sec:sinkhorn} and requires separate treatment (e.g., restricting to the unmasked block).
 
-In these settings, Proposition~\ref{prop:product} certifies worst-case amplification of the \emph{mixing sub-operator}.
+In these settings, Theorem~\ref{prop:product} certifies worst-case amplification of the \emph{mixing sub-operator}.
 Full-block stability still requires coupling this certificate with bounds on the remaining components
 (e.g., projections/MLPs/normalization), as recorded in Appendix~\ref{app:jacobian}.
 \end{remark}
@@ -1946,13 +1946,13 @@ Our results provide \emph{sufficient} stability certificates tailored to the \Am
 mechanism studied here. The analysis is intentionally modular, and several aspects are outside the present scope.
 
 \noindent\textbf{Worst-case nature and conservatism.}
-Our deterministic certificates are worst-case and can be conservative. The product bound in Proposition~\ref{prop:product} may be loose when mixers have additional structure, although the realized backward gain can be computed exactly by Remark~\ref{rem:exact-backward-gain}. Similarly, the Hilbert-metric constants in Theorem~\ref{thm:sinkhorn} are safe global certificates. The local envelope in Theorem~\ref{thm:local-envelope} is much sharper for matrices whose logarithmic Sinkhorn orbit lies near the limit, but it is still local. The first- and second-order predictors explain typical numerical behavior; they are not uniform worst-case guarantees.
+Our deterministic certificates are worst-case and can be conservative. The product bound in Theorem~\ref{prop:product} may be loose when mixers have additional structure, although the realized backward gain can be computed exactly by Remark~\ref{rem:exact-backward-gain}. Similarly, the Hilbert-metric constants in Theorem~\ref{thm:sinkhorn} are safe global certificates. The local envelope in Proposition~\ref{thm:local-envelope} is much sharper for matrices whose logarithmic Sinkhorn orbit lies near the limit, but it is still local. The first- and second-order predictors explain typical numerical behavior; they are not uniform worst-case guarantees.
 
 \noindent\textbf{Finite-step Sinkhorn constants.}
 The step-count rule uses Hilbert-metric contraction bounds. The matrix-adaptive diameter $\Delta(A)$ and initialization $\delta_0$ already improve the $\kappa$-only estimate, but they remain global certificates. The derivative envelope based on $\rho_R$ and $\lambda_R$ is sharper and non-asymptotic on a verified local ball. The first-order rate $\sigma_2(P)^2$ gives the late-stage slope, while the second-order expansion improves the first few finite steps.
 
 \noindent\textbf{Nonlinear blocks and full-network training dynamics.}
-The influence of the nonlinear block $F$ enters only through Jacobian norm bounds such as Theorem~\ref{thm:full-jac} and Corollary~\ref{cor:jacobian-cert}.
+The influence of the nonlinear block $F$ enters only through Jacobian norm bounds such as Proposition~\ref{thm:full-jac} and Corollary~\ref{cor:jacobian-cert}.
 We do not model how training shapes $\widetilde{\Hres}^{(\ell)}$ (and hence $\kappa$ or marginal errors), nor do we analyze how
 the certificates interact with optimization, data distribution, or generalization.
 
@@ -2371,7 +2371,7 @@ J_F^{(\ell)}\,
 \big(\Hpre^{(\ell)}\otimes I_C\big).
 \end{equation}
 
-\begin{theorem}[Layer Jacobian induced-norm bounds]\label{thm:full-jac}
+\begin{proposition}[Layer Jacobian induced-norm bounds]\label{thm:full-jac}
 With the notation above,
 \begin{equation}\label{eq:jac-inf}
 \norm{J^{(\ell)}}_{\infty}
@@ -2392,7 +2392,7 @@ Similarly,
 \norm{J_F^{(\ell)}}_{1}\,
 \norm{\Hpre^{(\ell)}}_{\infty,\mathrm{vec}}.
 \end{equation}
-\end{theorem}
+\end{proposition}
 
 \begin{proof}
 Using Equation~\eqref{eq:jac} and submultiplicativity of induced norms,
@@ -2421,7 +2421,7 @@ $\|\Hpre^{(\ell)}\|_\infty=\|\Hpre^{(\ell)}\|_{1,\mathrm{vec}}$, yielding Equati
 Equation~\eqref{eq:jac-one} follows analogously.
 \end{proof}
 
-\begin{corollary}[End-to-end Jacobian certification]\label{cor:jacobian-cert}
+\begin{corollary}[Conditional full-block Jacobian certification]\label{cor:jacobian-cert}
 Assume each residual mixer is entrywise nonnegative and $(\varepsilon_r^{(\ell)},\varepsilon_c^{(\ell)})$-doubly stochastic so that
 $\norm{\Hres^{(\ell)}}_\infty\le 1+\varepsilon_r^{(\ell)}$. If, in addition, there exist constants
 $b_{\mathrm{pre}},b_{\mathrm{post}},L_F\ge 0$ such that for all layers $\ell$,
