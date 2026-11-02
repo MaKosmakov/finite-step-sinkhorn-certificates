@@ -73,7 +73,7 @@ The dataset is not included in this repository. On Kaggle it is mounted at
 
 ## AI assistance
 
-The author used ChatGPT and received coding assistance from OpenAI Codex.
+OpenAI Codex and ChatGPT assisted with code development and debugging.
 The author takes responsibility for all content.
 
 ## Citation and license
