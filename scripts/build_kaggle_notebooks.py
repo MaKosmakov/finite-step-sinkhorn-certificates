@@ -20,7 +20,7 @@ def build(name, modules, command):
         "(https://www.kaggle.com/datasets/pankrzysiu/cifar10-python). "
         "Run the cells in order. Helper files are written into the working directory.\n\n"
         "ChatGPT and OpenAI Codex assisted with code development and debugging, "
-        "experiment and figure scripts, and manuscript editing. The author takes "
+        "experiment and figure scripts, mathematical checks, and manuscript editing. The author takes "
         "responsibility for the paper and the accompanying code.\n"
     )
     cells = [{"cell_type": "markdown", "metadata": {}, "source": intro.splitlines(keepends=True)}]
