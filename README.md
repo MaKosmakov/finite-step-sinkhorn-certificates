@@ -16,10 +16,10 @@ and local-predictor diagnostics.
 For nonnegative, row-stochastic mixers, the paper bounds the backward gain of
 the depth-wise product using the measured column defects:
 
-$$
+```math
 T_L = H^{(L)}\cdots H^{(1)}, \qquad
-\|T_L\|_1 \le \min\left\{\prod_{\ell=1}^L(1+\varepsilon_c^{(\ell)}),\ n\right\}.
-$$
+\lVert T_L\rVert_1 \le \min\Bigl(\prod_{\ell=1}^L(1+\varepsilon_c^{(\ell)}),\ n\Bigr).
+```
 
 Finite-step Sinkhorn estimates turn the number of normalization steps and the
 logit dynamic range into a sufficient column tolerance. The adaptive controller
