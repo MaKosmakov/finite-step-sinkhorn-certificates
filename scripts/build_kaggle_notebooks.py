@@ -19,9 +19,8 @@ def build(name, modules, command):
         "Enable a GPU and attach the [CIFAR-10 Python dataset]"
         "(https://www.kaggle.com/datasets/pankrzysiu/cifar10-python). "
         "Run the cells in order. Helper files are written into the working directory.\n\n"
-        "ChatGPT and OpenAI Codex assisted with code development and debugging, "
-        "experiment and figure scripts, mathematical checks, and manuscript editing. The author takes "
-        "responsibility for the paper and the accompanying code.\n"
+        "The author used ChatGPT and received coding assistance from OpenAI Codex. "
+        "The author takes responsibility for all content.\n"
     )
     cells = [{"cell_type": "markdown", "metadata": {}, "source": intro.splitlines(keepends=True)}]
     for module in modules:
