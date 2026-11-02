@@ -1,89 +1,84 @@
 # Finite-Step Sinkhorn Certificates
 
-This repository accompanies the paper **Finite-Step Sinkhorn Certificates for Nonnegative Stream-Mixing Products**.
+Code and saved diagnostics for **Finite-Step Sinkhorn Certificates for Nonnegative
+Stream-Mixing Products**, by Maksim Kosmakov, accepted in *Transactions on Machine
+Learning Research* (2026).
 
-The project studies a simple practical question: if a neural module uses only a finite number of Sinkhorn normalization steps, what stability budget did those steps actually certify? The code here reproduces the CIFAR-10 diagnostic experiments, adaptive-budget ablations, temperature-clipping checks, and local-predictor plots from the paper.
+[Paper and reviews](https://openreview.net/forum?id=NyEeOl6Gn7)
 
-The experiments are diagnostic rather than benchmark claims. They are meant to make the certificate quantities visible: column-marginal error, product certificates, exact propagated backward gain, cap failures, Sinkhorn step counts, and local spectral rates.
+The code measures how finite Sinkhorn normalization controls the backward gain of
+a stack of nonnegative stream mixers. The reported experiments use CIFAR-10:
+a matched small-transformer run, a four-policy controller ablation, and calibration
+and local-predictor diagnostics.
 
-## What is in this repository
+## Install
 
-- `code/train_cifar10_mhc.py`  
-  Main CIFAR-10 stress runner. It trains paired softmax/Sinkhorn variants and records the certificate diagnostics used in the paper.
-
-- `code/paper_extra_experiments_kaggle.py`  
-  Extra diagnostics: temperature-clipping grid and local predictor curves.
-
-- `code/paper_extra_experiments_3seeds_5epochs_kaggle.py`  
-  Focused controller ablation over seeds `0,1,2`: fixed cap, uniform tolerance, adaptive log-budget, and certificate-aware penalty.
-
-- `code/make_paper_plots.py`  
-  Regenerates the cleaner paper-facing plots from CSV logs.
-
-- `notebooks/`  
-  Kaggle-ready notebooks matching the script versions.
-
-- `logs/` and `plots/`  
-  Raw logs and generated figures used by the current paper draft.
-
-- `manuscript/`  
-  A copy of the current manuscript source/PDF for convenience.
-
-## Quick start
-
-Run a tiny CPU smoke test first:
+Use Python 3.10 or later. Install PyTorch appropriate for your CPU or CUDA device,
+then install the remaining dependencies:
 
 ```bash
-python code/train_cifar10_mhc.py \
-  --profile baseline \
-  --epochs 1 --seeds 0 \
-  --num_workers 0 --batch_size 64 \
-  --n_streams 4 --d 32 --depth 4 \
-  --sinkhorn_t_max 8 --sinkhorn_eps_tol 5e-4 \
-  --max_train_batches 1 --max_eval_batches 1 \
-  --data_root /path/to/cifar10 \
-  --out_dir results-cpu-smoke
+python -m pip install -r requirements.txt
 ```
 
-For the full GPU stress diagnostics used in the paper:
+## Check the saved results on CPU
+
+No dataset or training is needed for these commands:
 
 ```bash
-python code/train_cifar10_mhc.py \
-  --profile stress_full \
-  --epochs 5 --seeds 0 1 2 \
-  --batch_size 256 --num_workers 4 \
-  --data_root /path/to/cifar10 \
-  --out_dir results-stressed-cap80 \
-  --amp
+python scripts/dobrushin_diagnostic.py --roots relevance-demo/mixers \
+  --csv regenerated/dobrushin_diagnostic.csv \
+  --tex regenerated/dobrushin_diagnostic_table.tex \
+  --comparison-tex regenerated/certificate_comparison_table.tex
+python scripts/budget_sensitivity_diagnostic.py \
+  --csv regenerated/budget_sensitivity.csv \
+  --tex regenerated/budget_sensitivity_table.tex
+python scripts/regenerate_saved_diagnostics.py --out-dir regenerated
 ```
 
-Then regenerate paper-style plots:
+The first command audits the six saved final mixer stacks: two policies, three
+seeds, 24 layers, and eight streams. The budget sweep re-normalizes the saved
+row-softmax stacks under different budgets. Its CPU timings will vary by machine.
+The last command recreates the figures and summaries from the CSV logs and checks
+the finite-step lookup values. Checked-in outputs retain the measurements used in
+the published paper.
 
-```bash
-python code/make_paper_plots.py \
-  --csv results-stressed-cap80/logs/epoch_logs.csv \
-  --out_dir results-stressed-cap80/plots
-```
+## Run the experiments
 
-Run the extra diagnostics:
+See [RUN_GPU_COMMANDS.md](RUN_GPU_COMMANDS.md) for the exact training commands,
+a real-data CPU smoke test, and the settings for each reported experiment.
+The focused controller comparison uses seeds `0,1,2` for five epochs; the matched
+transformer run uses the same three seeds, 5,000 training images, 2,000 test images,
+and eight epochs. The transformer diagnostic uses a prescribed mixer initialization
+to expose the gain difference between the two normalization policies.
 
-```bash
-python code/paper_extra_experiments_kaggle.py
-python code/paper_extra_experiments_3seeds_5epochs_kaggle.py
-```
+Kaggle notebooks are in `notebooks/`. They contain the helper modules needed for
+execution. Enable a GPU and add the
+[cifar10-python dataset](https://www.kaggle.com/datasets/pankrzysiu/cifar10-python).
+The dataset is not included in this repository. On Kaggle it is mounted at
+`/kaggle/input/cifar10-python`; locally, point the scripts to the extracted
+`cifar-10-batches-py` directory or its parent, as documented in the commands.
 
-## Data
+## Files
 
-CIFAR-10 is not bundled. The Kaggle runs use the dataset
-[cifar10-python](https://www.kaggle.com/datasets/pankrzysiu/cifar10-python),
-mounted at `/kaggle/input/cifar10-python`. For local runs, use the standard
-CIFAR-10 Python archive or an extracted CIFAR-10 directory and pass the root
-through `--data_root` or the corresponding notebook variable.
+- `code/`: training, normalization, and plotting code. The extra-experiment runner
+  imports `code/adaptive_budget_ablation_kaggle.py`.
+- `scripts/`: post-hoc certificate audits and regeneration from saved results.
+- `relevance-demo/`: transformer configuration, epoch logs, final mixer stacks,
+  and figures.
+- `paper-extra-experiments/`: focused ablation logs, calibration grid, and local
+  predictor curves. The saved local-predictor curves cover seeds 0 and 1.
+- `results-stressed-cap80/`: the cap-80 stress-run logs and audit figures.
+- `results/`, `tables/`: post-hoc certificate and budget-sensitivity outputs.
+- `manuscript/`: camera-ready LaTeX, PDF, styles, and required figure/table files.
 
-## Reproducibility notes
+## AI assistance
 
-The paper tables and figures are regenerated from the checked-in CSV/JSON logs and scripts. The reported focused ablation uses seeds `0,1,2`. Larger benchmark claims are intentionally out of scope; the goal is to inspect whether the certificate quantities behave as predicted by the theory.
+ChatGPT and OpenAI Codex assisted with code development and debugging, experiment
+and figure scripts, and manuscript editing. The author takes responsibility for
+the paper and the accompanying code.
 
-## License
+## Citation and license
 
-This code release is distributed under the MIT License. See `LICENSE`.
+Use the citation in `CITATION.cff`, or cite the paper through its OpenReview page.
+The code is released under the MIT License. The manuscript is distributed under
+CC BY 4.0; third-party style files retain their own notices.

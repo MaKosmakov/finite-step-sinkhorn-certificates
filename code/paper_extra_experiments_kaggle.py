@@ -52,8 +52,6 @@ CONFIG = {
     "num_workers": 4,
     "amp": True,
     "data_parallel": False,
-    # Kaggle dataset: https://www.kaggle.com/datasets/pankrzysiu/cifar10-python
-    # Torchvision expects the root that contains cifar-10-batches-py/.
     "data_root": "/kaggle/input/cifar10-python",
     "out_dir": "/kaggle/working/paper-extra-experiments",
 
@@ -475,7 +473,7 @@ def run_focused_ablation(cfg: Dict[str, object], device: torch.device) -> Tuple[
                     f"epoch {epoch:02d} {policy:13s} "
                     f"acc={test_acc:.3f} steps={stats['avg_steps']:.2f} "
                     f"cert={stats['cert_bound']:.4g} exactT1={stats['exact_T1']:.4g} "
-                    f"rho*={stats['rho_star_median']:.3g} time={train_time + eval_time:.1f}s"
+                    f"rho_star={stats['rho_star_median']:.3g} time={train_time + eval_time:.1f}s"
                 )
             write_focused_ablation_outputs(all_rows, cfg)
 
@@ -707,7 +705,7 @@ def run_local_predictor_export(models_by_seed: Dict[int, Dict[str, nn.Module]], 
             for row in rows:
                 row.update({"seed": int(seed), "policy": policy, "layer": int(layer_id)})
             rows_all.extend(rows)
-            print(f"seed={seed} policy={policy} layer={layer_id} rho*={rho_star:.4g}")
+            print(f"seed={seed} policy={policy} layer={layer_id} rho_star={rho_star:.4g}")
 
             df = pd.DataFrame(rows)
             fig, ax = plt.subplots(figsize=(5.8, 3.8))
@@ -724,7 +722,9 @@ def run_local_predictor_export(models_by_seed: Dict[int, Dict[str, nn.Module]], 
             ax.set_yscale("log")
             ax.set_xlabel("full Sinkhorn steps t")
             ax.set_ylabel(r"$\varepsilon_c^{(2t)}$")
-            ax.set_title(f"seed {seed}, layer {layer_id}, rho*={rho_star:.3f}")
+            ax.set_title(
+                rf"Seed {seed}, layer {layer_id}, $\rho_\ast={rho_star:.3f}$"
+            )
             ax.grid(True, alpha=0.25)
             ax.legend(fontsize=7)
             fig.tight_layout()

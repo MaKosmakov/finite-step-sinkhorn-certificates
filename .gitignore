@@ -8,8 +8,9 @@ __pycache__/
 *.fdb_latexmk
 *.synctex.gz
 /results-cpu-smoke/
-/results-stressed-cap80/
 /results-regular/
 /results-stressed/
 cifar-10-batches-py/
 cifar-10-python.tar.gz
+/regenerated/
+/validation-output/

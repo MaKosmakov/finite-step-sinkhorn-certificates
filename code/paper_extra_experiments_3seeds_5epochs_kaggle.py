@@ -12,22 +12,27 @@ import zipfile
 import paper_extra_experiments_kaggle as exp
 
 
-cfg = dict(exp.CONFIG)
-cfg["seeds"] = [0, 1, 2]
-cfg["epochs"] = 5
-cfg["out_dir"] = "/kaggle/working/paper-extra-experiments-3seeds-5epochs"
-cfg["run_temperature_grid"] = False
-cfg["run_local_predictor"] = False
-cfg["max_train_batches"] = None
-cfg["max_eval_batches"] = None
+def main() -> None:
+    cfg = dict(exp.CONFIG)
+    cfg["seeds"] = [0, 1, 2]
+    cfg["epochs"] = 5
+    cfg["out_dir"] = "/kaggle/working/paper-extra-experiments-3seeds-5epochs"
+    cfg["run_temperature_grid"] = False
+    cfg["run_local_predictor"] = False
+    cfg["max_train_batches"] = None
+    cfg["max_eval_batches"] = None
 
-exp.run_all(cfg)
+    exp.run_all(cfg)
 
-out_dir = cfg["out_dir"]
-zip_path = "/kaggle/working/paper-extra-experiments-3seeds-5epochs.zip"
-with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-    for root, _dirs, files in os.walk(out_dir):
-        for name in files:
-            path = os.path.join(root, name)
-            zf.write(path, os.path.relpath(path, os.path.dirname(out_dir)))
-print(f"[3-seed zip] {zip_path}")
+    out_dir = cfg["out_dir"]
+    zip_path = "/kaggle/working/paper-extra-experiments-3seeds-5epochs.zip"
+    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        for root, _dirs, files in os.walk(out_dir):
+            for name in files:
+                path = os.path.join(root, name)
+                zf.write(path, os.path.relpath(path, os.path.dirname(out_dir)))
+    print(f"[3-seed zip] {zip_path}")
+
+
+if __name__ == "__main__":
+    main()

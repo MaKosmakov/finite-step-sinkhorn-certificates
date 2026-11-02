@@ -1,0 +1,54 @@
+\paragraph{Dynamic-range audit.}
+Table~\ref{tab:appendix-dynamic-range} reports the final-epoch dynamic-range
+diagnostics for the stress run. For Sinkhorn, the fixed-cap column evaluates the
+same trained weights using \(t=t_{\max}\). For the row-softmax baseline,
+\(\kappa_{\mathrm{obs}}\) is a native pre-softmax diagnostic, not the clipped
+positive-matrix dynamic range used in the Sinkhorn certificate.
+
+\begin{center}
+\centering
+\small
+\captionof{table}{Final-epoch dynamic-range diagnostics for the stress run.}
+\label{tab:appendix-dynamic-range}
+\begin{tabular}{lcccc}
+\toprule
+Model & med. $\kappa_{\mathrm{obs}}$ & std & med. $\kappa_{\mathrm{obs}}^{\mathrm{fix}}$ & std \\
+\midrule
+softmax & 8556629.04 & 840682.39 & --- & --- \\
+sinkhorn (early) & 14489.91 & 1315.73 & 14487.00 & 1324.17 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\centering
+\small
+\captionof{table}{Final-epoch stack certificate diagnostics. The exact backward gain is computed
+by vector propagation, while the certificate is
+\(\prod_{\ell}(1+\varepsilon_c^{(\ell)})\).}
+\label{tab:stack_certificate_diag}
+\begin{tabular}{lccc}
+\toprule
+Model & cert. & exact $\|T_L\|_1$ & exact/cert. \\
+\midrule
+softmax & \(3.61{\times}10^{47}\pm5{\times}10^{47}\) & \(5.72\pm2\) & --- \\
+sinkhorn (early) & \(1.05\pm0.0009\) & \(1\pm8{\times}10^{-5}\) & \(0.951\pm0.0009\) \\
+\bottomrule
+\end{tabular}
+\end{center}
+\FloatBarrier
+
+\noindent For the early-stopped Sinkhorn run, the final epoch reaches the tolerance
+\(\varepsilon_{\mathrm{tol}}=5\times 10^{-4}\) with median stopping time
+\(t_{\mathrm{stop}}=14\). Re-evaluating the same trained weights with the full cap
+\(t_{\max}=80\) gives a smaller column defect, about \(1.9\times 10^{-4}\), confirming
+that the reported stopping behavior is tolerance-driven rather than cap-limited.
+
+The row-softmax baseline illustrates that row stochasticity alone does not give a useful
+backward product certificate: the product certificate is enormous, although the realized
+gain is structurally capped and remains \(O(n)\). The Sinkhorn controller keeps both the
+certificate and the exact propagated gain near one.
+
+For the Sinkhorn run, the associated local diagnostic is
+\(\rho_\ast=0.631\pm0.01\), and the cap-failure rate is zero.
+\FloatBarrier

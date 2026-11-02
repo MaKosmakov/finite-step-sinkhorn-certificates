@@ -1,42 +1,11 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 #!/usr/bin/env python3
-# colab_kernel_launcher_FINAL.py
-#
-# CIFAR-10 stress-test harness for:
-#   (1) Softmax mixer (row-stochastic)
-#   (2) Finite-step Sinkhorn mixer with early stopping (approx. doubly-stochastic)
-#   (3) The SAME Sinkhorn weights evaluated with fixed t = t_max (diagnostic “oracle”)
-#
-# Paper-facing protocol (what this script enforces):
-#   - paired initialization (same non-mixer init across methods per seed)
-#   - TRUE paired minibatches: both models train on identical augmented batches
-#   - deterministic epoch-shuffle sampler (paired order per seed & epoch)
-#   - logs: kappa_obs per layer, Sinkhorn t_stop distribution, achieved marginal errors
-#
-# Multi-GPU:
-#   If multiple CUDA devices are visible, you can enable DataParallel with --data_parallel.
-#   (For Colab: two T4s). Batch size 256 is a reasonable starting point for 2xT4.
-#
-# Typical run (2xT4):
-#   python colab_kernel_launcher_FINAL.py --profile stress_full --epochs 5 --seeds 0 1 2 \
-#       --batch_size 256 --num_workers 4 --data_parallel --amp
-#
-# Determinism note:
-#   If --deterministic_algorithms is enabled on CUDA, PyTorch requires CUBLAS_WORKSPACE_CONFIG.
-#   This script sets it EARLY when that flag is present.
-#
-# Outputs:
-#   <out_dir>/logs/epoch_logs.csv
-#   <out_dir>/logs/kappa_tstop_table.tex
-#   <out_dir>/logs/kappa_tstop_table_minimal.tex
-#   <out_dir>/plots/kappa_obs.png
-#   <out_dir>/plots/kappa_obs_log.png
-#   <out_dir>/plots/tstop_hist_early.png
+"""CIFAR-10 stress diagnostics for finite-step Sinkhorn stream mixers.
+
+The runner trains matched row-softmax and Sinkhorn mixer models with paired
+initialization and paired minibatches. It logs marginal errors, Sinkhorn stopping
+counts, product certificates, fixed-cap re-evaluations, and exact propagated
+backward gains.
+"""
 
 from __future__ import annotations
 
@@ -75,6 +44,7 @@ from torch.utils.data import DataLoader, Sampler
 
 import torchvision
 import torchvision.transforms as T
+from cifar_data import load_cifar10
 
 import matplotlib.pyplot as plt
 
@@ -180,7 +150,7 @@ def finite_sinkhorn(
     Alternating col then row normalization.
 
     If early_stop=True: stop when both row/col errors <= eps_tol.
-    If early_stop=False: always run exactly t_max steps (oracle diagnostic).
+    If early_stop=False: always run exactly t_max steps for fixed-cap diagnostics.
 
     Returns:
       A: scaled matrix
@@ -249,8 +219,8 @@ class SinkhornMixer(nn.Module):
     Positive -> finite Sinkhorn -> approximately doubly-stochastic.
     Uses exp(clipped(beta*W)) for positivity and numeric safety.
 
-    During forward, this mixer runs early-stopped Sinkhorn (what you train with).
-    For the “oracle fixed-t” diagnostic we evaluate separately via sinkhorn_fixed().
+    During forward, this mixer runs early-stopped Sinkhorn. Fixed-cap diagnostics
+    are evaluated separately via sinkhorn_fixed().
     """
     def __init__(
         self,
@@ -288,7 +258,7 @@ class SinkhornMixer(nn.Module):
     @torch.no_grad()
     def sinkhorn_fixed(self) -> torch.Tensor:
         """
-        Oracle diagnostic: same M but run exactly t_max steps (no early stop).
+        Same positive matrix, re-evaluated with exactly t_max steps.
         """
         M = self._positive()
         A, _ = finite_sinkhorn(M, self.t_max, self.eps_tol, early_stop=False)
@@ -613,8 +583,8 @@ def get_cifar10_loaders(
         T.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)),
     ])
 
-    train_ds = torchvision.datasets.CIFAR10(root=data_root, train=True, download=True, transform=tr)
-    test_ds = torchvision.datasets.CIFAR10(root=data_root, train=False, download=True, transform=te)
+    train_ds = load_cifar10(data_root, train=True, transform=tr)
+    test_ds = load_cifar10(data_root, train=False, transform=te)
 
     sampler = EpochShuffleSampler(train_ds, base_seed=base_seed, shuffle=True)
 
@@ -670,7 +640,7 @@ class EpochLog:
     sink_err_row_max: float
     sink_err_col_max: float
 
-    # oracle fixed-t diagnostics (same weights)
+    # Fixed-cap diagnostics using the same weights.
     kappa_fixed_median: float
     kappa_fixed_iqr_lo: float
     kappa_fixed_iqr_hi: float
@@ -857,7 +827,7 @@ def collect_mixer_stats_sinkhorn(model: nn.Module, eps_tol: float) -> Dict[str, 
         if max(er, ec) <= float(eps_tol):
             hits += 1
 
-        # Oracle fixed-t A (same weights)
+        # Fixed-cap matrix using the same weights.
         A_fix = layer.mixer.sinkhorn_fixed()
         kappas_fixed.append(kappa_obs(A_fix))
         rho_stars.append(rho_star_from_doubly_stochastic(A_fix))
@@ -958,7 +928,7 @@ def _final_epoch_rows(rows: List[EpochLog]) -> Dict[Tuple[int, str], EpochLog]:
 
 def write_tex_table(path_tex: str, rows: List[EpochLog], profile: str, cfg: ProfileCfg) -> None:
     """
-    Main table: includes kappa, t_stop, achieved errors, and oracle fixed-t diagnostics.
+    Main table: kappa, t_stop, achieved errors, and fixed-cap diagnostics.
     """
     os.makedirs(os.path.dirname(path_tex), exist_ok=True)
     by = _final_epoch_rows(rows)
@@ -986,6 +956,7 @@ def write_tex_table(path_tex: str, rows: List[EpochLog], profile: str, cfg: Prof
     cert_sink = np.array([v.cert_bound for v in sink], float)
     t1_soft = np.array([v.exact_T1 for v in soft], float)
     t1_sink = np.array([v.exact_T1 for v in sink], float)
+    cert_ratio_sink = np.array([v.cert_ratio for v in sink], float)
 
     kmS_m, kmS_s = mean_std(km_soft)
     kmK_m, kmK_s = mean_std(km_sink)
@@ -1000,6 +971,7 @@ def write_tex_table(path_tex: str, rows: List[EpochLog], profile: str, cfg: Prof
     certK_m, certK_s = mean_std(cert_sink)
     t1S_m, t1S_s = mean_std(t1_soft)
     t1K_m, t1K_s = mean_std(t1_sink)
+    certRatioK_m, certRatioK_s = mean_std(cert_ratio_sink)
 
     tmax = int(cfg.sinkhorn_t_max)
     etol = float(cfg.sinkhorn_eps_tol)
@@ -1018,7 +990,7 @@ def write_tex_table(path_tex: str, rows: List[EpochLog], profile: str, cfg: Prof
     tex.append(r"\bottomrule")
     tex.append(r"\end{tabular}")
     tex.append(rf"\caption{{Final-epoch dynamic-range diagnostics (profile: \texttt{{{profile_tex}}}). "
-               rf"$A^{{\mathrm{{fix}}}}$ denotes the oracle evaluation with fixed $t=t_{{\max}}$ using the same trained weights. "
+               rf"$A^{{\mathrm{{fix}}}}$ denotes a fixed-cap re-evaluation with $t=t_{{\max}}$ using the same trained weights. "
                rf"For the row-softmax baseline, $\kappa_{{\mathrm{{obs}}}}$ is a native pre-softmax dynamic-range diagnostic, not the clipped positive-matrix dynamic range used in the Sinkhorn certificate.}}")
     tex.append(r"\label{tab:final_epoch_dynamic_range_diag}")
     tex.append(r"\end{table}")
@@ -1047,7 +1019,7 @@ def write_tex_table(path_tex: str, rows: List[EpochLog], profile: str, cfg: Prof
     tex.append(r"Model & cert. & exact $\|T_L\|_1$ & exact/cert. \\")
     tex.append(r"\midrule")
     tex.append(rf"softmax & {certS_m:.3g}$\pm${certS_s:.1g} & {t1S_m:.3g}$\pm${t1S_s:.1g} & --- \\")
-    tex.append(rf"sinkhorn (early) & {certK_m:.3g}$\pm${certK_s:.1g} & {t1K_m:.3g}$\pm${t1K_s:.1g} & {t1K_m / certK_m:.3g} \\")
+    tex.append(rf"sinkhorn (early) & {certK_m:.3g}$\pm${certK_s:.1g} & {t1K_m:.3g}$\pm${t1K_s:.1g} & {certRatioK_m:.3g}$\pm${certRatioK_s:.1g} \\")
     tex.append(r"\bottomrule")
     tex.append(r"\end{tabular}")
     tex.append(rf"\caption{{Final-epoch stack certificate diagnostics. The exact backward gain is computed by vector propagation, while the certificate is $\prod_\ell(1+\varepsilon_c^{{(\ell)}})$. For Sinkhorn, the local diagnostic is $\rho_*={rho_m:.3g}\pm{rho_s:.1g}$, the final usable ratio is {ratio_m:.3g}$\pm${ratio_s:.1g}, and the cap-failure rate is {1.0-hit_m:.3g}. The final usable ratio is a finite-run diagnostic, not an asymptotic local-rate estimate near tolerance or the numerical floor.}}")
@@ -1226,9 +1198,9 @@ def main(argv=None):
     parser.add_argument("--amp", action="store_true",
                         help="Use torch.cuda.amp mixed precision (recommended on T4).")
     parser.add_argument("--max_train_batches", type=int, default=None,
-                        help="CPU/debug mode: stop each training epoch after this many batches.")
+                        help="Optional smoke-test limit for training batches per epoch.")
     parser.add_argument("--max_eval_batches", type=int, default=None,
-                        help="CPU/debug mode: stop each eval pass after this many batches.")
+                        help="Optional smoke-test limit for evaluation batches.")
     parser.add_argument("--n_streams", type=int, default=None)
     parser.add_argument("--d", type=int, default=None)
     parser.add_argument("--depth", type=int, default=None)
@@ -1264,10 +1236,10 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
 
-    # Ignore notebook/papermill injected argv.
+    # Ignore extra arguments injected by hosted notebook runners.
     args, unknown = parser.parse_known_args(argv)
     if unknown:
-        print("Ignoring unknown argv (notebook/kernel):", unknown)
+        print("Ignoring unknown argv from host runner:", unknown)
 
     # If deterministic_algorithms requested, ensure env var is set (already done early, but keep consistent).
     if args.deterministic_algorithms and os.environ.get("CUBLAS_WORKSPACE_CONFIG") is None:

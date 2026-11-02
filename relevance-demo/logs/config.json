@@ -1,0 +1,36 @@
+{
+  "data_dir": "results-stressed/data/cifar-10-batches-py",
+  "out_dir": "relevance-demo",
+  "seed": 0,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "train_size": 5000,
+  "test_size": 2000,
+  "epochs": 8,
+  "batch_size": 128,
+  "depth": 24,
+  "n_streams": 8,
+  "dim": 24,
+  "heads": 2,
+  "patch": 8,
+  "beta": 4.0,
+  "clip_logits": 8.0,
+  "sinkhorn_t_max": 40,
+  "sinkhorn_eps": 0.0005,
+  "mixer_init_noise": 0.05,
+  "collapse_strength": 5.0,
+  "lr": 0.002,
+  "weight_decay": 0.0001,
+  "grad_clip": 0.0,
+  "device": "auto",
+  "save_mixers": true,
+  "mixer_out_dir": null,
+  "resolved_seeds": [
+    0,
+    1,
+    2
+  ]
+}

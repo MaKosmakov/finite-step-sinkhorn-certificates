@@ -1,0 +1,18 @@
+\begin{center}
+\centering
+\small
+\begin{tabular}{lrrrrrrr}
+\toprule
+Policy & \(L\) & \(n\) & \(\bar\delta\) & \(\max_\ell\|c_\ell\|_1\) & Product cert. & Dobrushin cert. & Exact \(\|T_L\|_1\) \\
+\midrule
+softmax seed 0 & 24 & 8 & \(9.267\times 10^{-4}\) & \(13.96\) & \(4.457\times 10^{21}\) & \(7.987\) & \(7.976\) \\
+sinkhorn seed 0 & 24 & 8 & \(0.2345\) & \(0.01692\) & \(1.0086\) & \(1.0001\) & \(1.0000\) \\
+softmax seed 1 & 24 & 8 & \(7.792\times 10^{-4}\) & \(13.96\) & \(4.460\times 10^{21}\) & \(7.987\) & \(7.985\) \\
+sinkhorn seed 1 & 24 & 8 & \(0.2082\) & \(0.01364\) & \(1.0053\) & \(1.0001\) & \(1.0000\) \\
+softmax seed 2 & 24 & 8 & \(9.942\times 10^{-4}\) & \(13.96\) & \(4.460\times 10^{21}\) & \(7.987\) & \(7.983\) \\
+sinkhorn seed 2 & 24 & 8 & \(0.2006\) & \(0.01372\) & \(1.0050\) & \(1.0001\) & \(1.0000\) \\
+\bottomrule
+\end{tabular}
+\captionof{table}{Post-hoc finite-horizon Dobrushin diagnostics for saved mixer stacks.}
+\label{tab:dobrushin-diagnostic}
+\end{center}

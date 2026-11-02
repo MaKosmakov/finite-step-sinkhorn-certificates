@@ -1,0 +1,16 @@
+\begin{center}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcccccc}
+\toprule
+Policy & Acc. & Time/epoch & Avg. steps & Cert. & Exact $\|T_L\|_1$ & Cap fail. \\
+\midrule
+Fixed \(t=80\) & $0.584\pm0.037$ & $758.0\pm6.1$s & $80.00\pm0.00$ & $1.0004\pm0.0003$ & $1.00000\pm0.00000$ & $0.00\pm0.00\%$ \\
+Uniform tol. & $0.584\pm0.037$ & $325.4\pm17.6$s & $16.36\pm0.71$ & $1.0521\pm0.0012$ & $1.00029\pm0.00014$ & $0.26\pm0.37\%$ \\
+Adaptive budget & $0.581\pm0.034$ & $309.6\pm19.1$s & $15.86\pm0.73$ & $1.0659\pm0.0001$ & $1.00029\pm0.00014$ & $0.26\pm0.37\%$ \\
+Cert.-aware penalty & $0.584\pm0.038$ & $570.2\pm34.2$s & $15.80\pm0.72$ & $1.0656\pm0.0000$ & $1.00030\pm0.00014$ & $0.26\pm0.37\%$ \\
+\bottomrule
+\end{tabular}
+\captionof{table}{Focused controller ablation under the CIFAR-10 stress setting. The adaptive and certificate-aware policies use the shared budget $B_1=(1+5\cdot10^{-4})^{128}=1.066075$. Statistics are computed over seeds $0,1,2$; the associated local rates are all approximately $\rho_*=0.62$.}
+\label{tab:focused_controller_ablation}
+\end{center}

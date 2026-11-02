@@ -6,3 +6,13 @@ authors:
   - family-names: Kosmakov
     given-names: Maksim
 url: https://github.com/MaKosmakov/finite-step-sinkhorn-certificates
+license: MIT
+preferred-citation:
+  type: article
+  title: Finite-Step Sinkhorn Certificates for Nonnegative Stream-Mixing Products
+  authors:
+    - family-names: Kosmakov
+      given-names: Maksim
+  journal: Transactions on Machine Learning Research
+  year: 2026
+  url: https://openreview.net/forum?id=NyEeOl6Gn7

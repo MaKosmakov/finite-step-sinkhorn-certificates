@@ -1,0 +1,18 @@
+\begin{center}
+\small
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+Policy & Acc. & Loss & Exact $\|T_L\|_1$ & Product cert. \\
+\midrule
+row-only softmax & 0.350$\pm$0.026 & 1.784$\pm$0.045 & 7.981$\pm$0.004 & 4.46e+21$\pm$1.72e+18 \\
+Sinkhorn budget & 0.339$\pm$0.033 & 1.796$\pm$0.049 & 1.000$\pm$2.82e-06 & 1.006$\pm$0.002 \\
+\bottomrule
+\end{tabular}
+}
+\captionof{table}{Matched short-horizon CIFAR-10 transformer diagnostic. Both rows use the same
+initial weights and minibatches within each seed; only the stream-mixer normalization changes.
+The row-only mixer is row-stochastic but not column-controlled, while the Sinkhorn
+row uses the adaptive log-budget controller. Statistics are mean$\pm$std over seeds 0, 1, 2.}
+\label{tab:tiny_transformer_relevance}
+\end{center}
